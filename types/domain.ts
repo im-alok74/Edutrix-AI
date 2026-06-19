@@ -48,6 +48,80 @@ export type DashboardSnapshot = {
   weeklyGrowth: number;
 };
 
+export type SparkEventType =
+  | "quiz"
+  | "revision"
+  | "streak"
+  | "study_session"
+  | "goal"
+  | "weak_topic"
+  | "consistency"
+  | "focus"
+  | "achievement";
+
+export type SparkChallengePeriod = "daily" | "weekly" | "monthly";
+
+export type SparkLeaderboardScope = "friends" | "exam" | "institution" | "weekly" | "monthly";
+
+export type SparkRewardCategory = "theme" | "profile_frame" | "badge" | "avatar" | "customization";
+
+export type SparkLevelMilestone = {
+  level: number;
+  title: string;
+  xpThreshold: number;
+  badge?: string;
+  unlocks: string[];
+};
+
+export type SparkAchievement = {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  category: "streak" | "quiz" | "revision" | "goal" | "readiness" | "focus";
+  xpReward: number;
+  progress: number;
+  target: number;
+  unlocked: boolean;
+};
+
+export type SparkChallenge = {
+  id: string;
+  title: string;
+  period: SparkChallengePeriod;
+  target: string;
+  progress: number;
+  xpReward: number;
+  dueLabel: string;
+};
+
+export type SparkLeaderboardEntry = {
+  rank: number;
+  name: string;
+  score: number;
+  delta: number;
+  avatar?: string;
+  visible: boolean;
+};
+
+export type SparkStoreItem = {
+  id: string;
+  title: string;
+  category: SparkRewardCategory;
+  xpCost: number;
+  description: string;
+  available: boolean;
+};
+
+export type SparkAnalyticsSnapshot = {
+  dau: number;
+  consistency: number;
+  streakRetention: number;
+  goalCompletion: number;
+  challengeCompletion: number;
+  averageSessionMinutes: number;
+};
+
 export type ChatTurn = {
   id: string;
   role: "user" | "assistant";

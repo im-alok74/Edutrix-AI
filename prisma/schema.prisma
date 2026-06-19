@@ -47,6 +47,45 @@ enum NotificationKind {
   TIMETABLE_ALERT
   GOAL_ALERT
   EXAM_COUNTDOWN
+  STREAK_SAVE
+  LEVEL_UP
+  ACHIEVEMENT_UNLOCK
+  CHALLENGE_REMINDER
+  PERSONAL_ENCOURAGEMENT
+}
+
+enum SparkEventType {
+  QUIZ
+  REVISION
+  STREAK
+  STUDY_SESSION
+  GOAL
+  WEAK_TOPIC
+  CONSISTENCY
+  FOCUS
+  ACHIEVEMENT
+}
+
+enum SparkChallengePeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum SparkLeaderboardScope {
+  FRIENDS
+  EXAM
+  INSTITUTION
+  WEEKLY
+  MONTHLY
+}
+
+enum SparkRewardCategory {
+  THEME
+  PROFILE_FRAME
+  BADGE
+  AVATAR
+  CUSTOMIZATION
 }
 
 enum ResourceType {
@@ -86,8 +125,16 @@ model User {
   learningStyle       String?
   targetExamDate      DateTime?
   streak              Int                 @default(0)
+  bestStreak          Int                 @default(0)
+  weeklyStreak        Int                 @default(0)
+  revisionStreak      Int                 @default(0)
+  quizStreak          Int                 @default(0)
+  streakShields       Int                 @default(1)
   xp                  Int                 @default(0)
   level               Int                 @default(1)
+  focusXp             Int                 @default(0)
+  leaderboardOptIn    Boolean             @default(true)
+  sparkProfileVisible Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   subjects            UserSubject[]
@@ -107,6 +154,11 @@ model User {
   focusSessions       FocusSession[]
   mistakeItems        MistakeNotebookItem[]
   deviceTokens        DeviceToken[]
+  sparkEvents         SparkEvent[]
+  sparkChallenges     UserSparkChallenge[]
+  sparkRedemptions    SparkRedemption[]
+  leaderboardEntries  SparkLeaderboardEntry[]
+  sparkAchievements   UserAchievement[]
 }
 
 model Subject {
@@ -311,6 +363,12 @@ model Achievement {
   title       String
   description String
   xpReward    Int               @default(0)
+  category    String            @default("spark")
+  rarity      String            @default("common")
+  icon        String?
+  unlockRule  String?
+  progressTarget Int?
+  isHidden    Boolean           @default(false)
   users       UserAchievement[]
 }
 
@@ -323,6 +381,122 @@ model UserAchievement {
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
+}
+
+model SparkEvent {
+  id          String        @id @default(cuid())
+  userId      String
+  type        SparkEventType
+  title       String
+  description String
+  xpAwarded   Int           @default(0)
+  source      String?
+  metadata    Json          @default("{}")
+  createdAt   DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, createdAt])
+}
+
+model SparkLevelMilestone {
+  level       Int       @id
+  title       String
+  xpThreshold Int
+  badge       String?
+  unlocks     Json      @default("[]")
+}
+
+model SparkChallenge {
+  id          String               @id @default(cuid())
+  code        String               @unique
+  title       String
+  description String
+  period      SparkChallengePeriod
+  target      String
+  xpReward    Int                  @default(0)
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  users       UserSparkChallenge[]
+}
+
+model UserSparkChallenge {
+  id           String          @id @default(cuid())
+  userId       String
+  challengeId  String
+  progress     Int             @default(0)
+  startedAt    DateTime        @default(now())
+  completedAt  DateTime?
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge    SparkChallenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@index([userId, completedAt])
+}
+
+model SparkReward {
+  id          String              @id @default(cuid())
+  code        String              @unique
+  title       String
+  description String
+  category    SparkRewardCategory
+  xpCost      Int                 @default(0)
+  icon        String?
+  isActive    Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  redemptions SparkRedemption[]
+}
+
+model SparkRedemption {
+  id          String        @id @default(cuid())
+  userId      String
+  rewardId    String
+  redeemedAt  DateTime      @default(now())
+  metadata    Json          @default("{}")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward      SparkReward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@index([userId, redeemedAt])
+}
+
+model SparkLeaderboardSnapshot {
+  id          String                  @id @default(cuid())
+  scope       SparkLeaderboardScope
+  period      String
+  title       String
+  publishedAt DateTime                @default(now())
+  metadata    Json                    @default("{}")
+  entries     SparkLeaderboardEntry[]
+
+  @@index([scope, period])
+}
+
+model SparkLeaderboardEntry {
+  id          String                  @id @default(cuid())
+  snapshotId  String
+  userId      String
+  rank        Int
+  score       Int
+  delta       Int                     @default(0)
+  visible     Boolean                 @default(true)
+  metadata    Json                    @default("{}")
+  snapshot    SparkLeaderboardSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([snapshotId, rank])
+  @@index([userId, visible])
+}
+
+model SparkAnalyticsSnapshot {
+  id                    String   @id @default(cuid())
+  capturedAt            DateTime @default(now())
+  dau                   Int      @default(0)
+  studyConsistency      Float    @default(0)
+  streakRetention       Float    @default(0)
+  goalCompletion        Float    @default(0)
+  challengeCompletion   Float    @default(0)
+  averageSessionMinutes Int      @default(0)
+
+  @@index([capturedAt])
 }
 
 model JournalEntry {

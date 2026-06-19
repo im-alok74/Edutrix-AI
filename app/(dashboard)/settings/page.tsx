@@ -1,5 +1,6 @@
 import { Bell, Brain, Languages, Palette, SlidersHorizontal, Target } from "lucide-react";
 import { ThemeSelector } from "@/components/theme/theme-selector";
+import { Card } from "@/components/ui/card";
 
 const settings = [
   { title: "Notifications", body: "Study reminders, revision nudges, timetable alerts.", icon: Bell },
@@ -12,7 +13,7 @@ const settings = [
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
-      <section className="premium-card rounded-[2rem] p-6">
+      <Card className="border-white/50 bg-white/80 shadow-xl shadow-primary/5 backdrop-blur">
         <div className="flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/12 text-primary">
             <Palette className="h-6 w-6" />
@@ -25,11 +26,11 @@ export default function SettingsPage() {
         <div className="mt-6">
           <ThemeSelector />
         </div>
-      </section>
+      </Card>
 
       <div className="grid gap-3 md:grid-cols-2">
         {settings.map((item) => (
-          <section key={item.title} className="premium-card rounded-[1.75rem] p-5">
+          <Card key={item.title} className="border-white/50 bg-white/75 shadow-lg shadow-primary/5 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl">
             <item.icon className="h-6 w-6 text-primary" />
             <h2 className="mt-4 text-xl font-black">{item.title}</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.body}</p>
@@ -37,7 +38,7 @@ export default function SettingsPage() {
               Enabled
               <input type="checkbox" defaultChecked className="h-5 w-5 accent-primary" />
             </label>
-          </section>
+          </Card>
         ))}
       </div>
     </div>
