@@ -1,0 +1,410 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExamType {
+  GATE
+  JEE
+  NEET
+  CUET
+  SCHOOL
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  ADVANCED
+}
+
+enum QuestionType {
+  MCQ
+  MSQ
+  NUMERICAL
+}
+
+enum GoalPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  EXAM
+}
+
+enum ScheduleType {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum NotificationKind {
+  STUDY_REMINDER
+  REVISION_REMINDER
+  TIMETABLE_ALERT
+  GOAL_ALERT
+  EXAM_COUNTDOWN
+}
+
+enum ResourceType {
+  NOTE
+  PDF
+  PYQ
+  BOOKMARK
+  DOWNLOAD
+}
+
+enum Mood {
+  CONFIDENT
+  GOOD
+  NORMAL
+  STRESSED
+  TIRED
+}
+
+enum AttemptStatus {
+  CORRECT
+  PARTIAL
+  INCORRECT
+  SKIPPED
+}
+
+model User {
+  id                  String              @id @default(cuid())
+  clerkId             String              @unique
+  email               String              @unique
+  name                String
+  imageUrl            String?
+  exam                ExamType?
+  targetRank          Int?
+  dailyStudyHours     Float               @default(2)
+  weakSubjects        String[]            @default([])
+  strongSubjects      String[]            @default([])
+  learningStyle       String?
+  targetExamDate      DateTime?
+  streak              Int                 @default(0)
+  xp                  Int                 @default(0)
+  level               Int                 @default(1)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  subjects            UserSubject[]
+  attempts            Attempt[]
+  mastery             Mastery[]
+  goals               Goal[]
+  timetableItems      TimetableItem[]
+  notifications       Notification[]
+  chatMessages        ChatMessage[]
+  events              Event[]
+  resources           Resource[]
+  achievements        UserAchievement[]
+  journals            JournalEntry[]
+  revisionQueue       RevisionQueue[]
+  moodLogs            MoodLog[]
+  studySessions       StudySession[]
+  focusSessions       FocusSession[]
+  mistakeItems        MistakeNotebookItem[]
+  deviceTokens        DeviceToken[]
+}
+
+model Subject {
+  id        String        @id @default(cuid())
+  name      String
+  exam      ExamType
+  topics    Topic[]
+  users     UserSubject[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([name, exam])
+  @@index([exam])
+}
+
+model UserSubject {
+  id        String   @id @default(cuid())
+  userId    String
+  subjectId String
+  isWeak    Boolean  @default(false)
+  isStrong  Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, subjectId])
+}
+
+model Topic {
+  id          String     @id @default(cuid())
+  subjectId   String
+  name        String
+  description String?
+  order       Int        @default(0)
+  subject     Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  mastery     Mastery[]
+  resources   Resource[]
+  revisions   RevisionQueue[]
+
+  @@unique([subjectId, name])
+  @@index([subjectId])
+}
+
+model Question {
+  id          String        @id @default(cuid())
+  topicId     String
+  type        QuestionType
+  difficulty  Difficulty
+  prompt      String
+  options     Json?
+  answer      Json
+  explanation String
+  source      String?
+  examYear    Int?
+  tags        String[]      @default([])
+  topic       Topic         @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  attempts    Attempt[]
+  mistakes    MistakeNotebookItem[]
+  revisions   RevisionQueue[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([topicId, difficulty, type])
+}
+
+model Attempt {
+  id             String        @id @default(cuid())
+  userId         String
+  questionId     String
+  selectedAnswer Json?
+  status         AttemptStatus
+  timeTakenSec   Int
+  confidence     Int?
+  createdAt      DateTime      @default(now())
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question       Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([questionId])
+}
+
+model Mastery {
+  id               String   @id @default(cuid())
+  userId           String
+  topicId          String
+  masteryScore     Float    @default(0)
+  accuracy         Float    @default(0)
+  speedScore       Float    @default(0)
+  learningVelocity Float    @default(0)
+  lastPracticedAt  DateTime?
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic            Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@index([userId, masteryScore])
+}
+
+model Goal {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  period      GoalPeriod
+  target      Float
+  progress    Float      @default(0)
+  metric      String
+  startsAt    DateTime
+  endsAt      DateTime
+  completedAt DateTime?
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events      Event[]
+
+  @@index([userId, period, startsAt])
+}
+
+model TimetableItem {
+  id          String       @id @default(cuid())
+  userId      String
+  title       String
+  type        ScheduleType
+  subject     String?
+  topic       String?
+  startsAt    DateTime
+  endsAt      DateTime
+  color       String       @default("#818cf8")
+  completedAt DateTime?
+  sourceId    String?
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startsAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  kind      NotificationKind
+  title     String
+  body      String
+  sendAt    DateTime
+  sentAt    DateTime?
+  readAt    DateTime?
+  metadata  Json             @default("{}")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sendAt])
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String
+  content   String
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  userId    String
+  goalId    String?
+  eventType String
+  eventData Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal      Goal?    @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  @@index([userId, eventType, createdAt])
+}
+
+model Resource {
+  id          String       @id @default(cuid())
+  userId      String
+  topicId     String?
+  type        ResourceType
+  title       String
+  url         String?
+  content     String?
+  tags        String[]     @default([])
+  downloaded  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic       Topic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, type, createdAt])
+}
+
+model Achievement {
+  id          String            @id @default(cuid())
+  code        String            @unique
+  title       String
+  description String
+  xpReward    Int               @default(0)
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model JournalEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  reflection String
+  learnings  String?
+  challenges String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model RevisionQueue {
+  id          String    @id @default(cuid())
+  userId      String
+  topicId     String?
+  questionId  String?
+  title       String
+  intervalDay Int
+  dueAt       DateTime
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic       Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  question    Question? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, dueAt])
+}
+
+model MoodLog {
+  id        String   @id @default(cuid())
+  userId    String
+  mood      Mood
+  note      String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model StudySession {
+  id             String    @id @default(cuid())
+  userId         String
+  subject        String?
+  topic          String?
+  startedAt      DateTime
+  endedAt        DateTime?
+  durationMin    Int       @default(0)
+  focusScore     Float     @default(0)
+  distractionCnt Int       @default(0)
+  notes          String?
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+model FocusSession {
+  id             String   @id @default(cuid())
+  userId         String
+  durationMin    Int
+  completed      Boolean  @default(false)
+  distractionCnt Int      @default(0)
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model MistakeNotebookItem {
+  id         String    @id @default(cuid())
+  userId     String
+  questionId String?
+  title      String
+  note       String?
+  bookmarked Boolean   @default(false)
+  tags       String[]   @default([])
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, bookmarked, createdAt])
+}
