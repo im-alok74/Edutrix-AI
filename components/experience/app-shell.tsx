@@ -19,15 +19,15 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/aura", label: "Aura", icon: UserRound },
-  { href: "/orbit", label: "Orbit", icon: CalendarDays },
-  { href: "/quest", label: "Quest", icon: BookOpen },
-  { href: "/horizon", label: "Stats", icon: ChartNoAxesCombined },
-  { href: "/vault", label: "Vault", icon: NotebookTabs },
-  { href: "/spark", label: "Spark", icon: Flame },
-  { href: "/focus-flow", label: "Focus", icon: Timer },
-  { href: "/settings", label: "Settings", icon: Settings }
+  { href: "/dashboard", label: "Home", description: "Overview", icon: Home },
+  { href: "/aura", label: "Aura", description: "Profile", icon: UserRound },
+  { href: "/orbit", label: "Orbit", description: "Plan", icon: CalendarDays },
+  { href: "/quest", label: "Quest", description: "Practice", icon: BookOpen },
+  { href: "/horizon", label: "Stats", description: "Progress", icon: ChartNoAxesCombined },
+  { href: "/vault", label: "Vault", description: "Review", icon: NotebookTabs },
+  { href: "/spark", label: "Spark", description: "XP", icon: Flame },
+  { href: "/focus-flow", label: "Focus", description: "Deep work", icon: Timer },
+  { href: "/settings", label: "Settings", description: "Prefs", icon: Settings }
 ];
 
 const mobileNav = nav.slice(0, 4);
@@ -53,12 +53,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group relative flex min-h-12 items-center gap-3 rounded-2xl px-4 text-sm font-bold transition",
+                  "group relative flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition",
                   active ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:bg-white/60 hover:text-foreground"
                 )}
               >
-                <item.icon className="h-5 w-5" />
-                {item.label}
+                <item.icon className="h-5 w-5 shrink-0" />
+                <span className="flex flex-col leading-none">
+                  <span>{item.label}</span>
+                  <span className="mt-1 text-[11px] font-semibold leading-none opacity-80">{item.description}</span>
+                </span>
                 {active && <motion.span layoutId="rail-glow" className="absolute inset-0 -z-10 rounded-2xl bg-primary" />}
               </Link>
             );

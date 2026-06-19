@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Bot, CalendarDays, Flame, Headphones, NotebookPen, Sparkles, Trophy } from "lucide-react";
+import { BookOpen, Bot, CalendarDays, Flame, Headphones, NotebookPen, Quote, Sparkles, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ProgressRing } from "@/components/experience/progress-ring";
 import { MasteryGlowChart, StudyHoursBars } from "@/components/experience/premium-chart";
+import { ModuleGrid } from "@/components/modules/module-grid";
 
 const orbit = [
   { time: "6:30 PM", title: "Physics: Capacitors", tone: "bg-primary/12 text-primary" },
@@ -38,6 +39,10 @@ export function StudentDashboard() {
             <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-foreground/75">
               You are closer than it feels. One clean study block tonight can move Electrostatics from shaky to solid.
             </p>
+            <div className="mt-5 flex items-start gap-3 rounded-[1.5rem] bg-white/55 p-4">
+              <Quote className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              <p className="text-sm font-medium leading-6 text-foreground/80">Small wins compound. Finish one clean block and let the momentum carry tomorrow.</p>
+            </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full">
                 <Link href="/focus-flow">
@@ -111,6 +116,10 @@ export function StudentDashboard() {
             </div>
             <Progress value={64} className="h-4" />
           </div>
+          <div className="mt-5 rounded-[1.5rem] bg-white/55 p-4">
+            <p className="text-sm font-black text-primary">Upcoming Revision</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">Revisit electrostatics formulas before your next deep block.</p>
+          </div>
         </section>
       </div>
 
@@ -137,6 +146,14 @@ export function StudentDashboard() {
           <StudyHoursBars />
         </section>
       </div>
+
+      <section className="premium-card rounded-[2rem] p-5">
+        <h2 className="text-2xl font-black">Your Learning Universe</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Explore all the powerful modules at your fingertips</p>
+        <div className="mt-5">
+          <ModuleGrid />
+        </div>
+      </section>
     </div>
   );
 }
