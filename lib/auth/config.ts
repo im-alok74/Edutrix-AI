@@ -1,10 +1,10 @@
-import NextAuth, { type NextAuthConfig } from "next-auth";
+import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
-export const authConfig: NextAuthConfig = {
+export const authConfig: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || "dev-secret-change-in-production",
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -46,26 +46,25 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   pages: {
-    signIn: "/auth/signin",
-    signUp: "/auth/signup"
+    signIn: "/auth/signin"
   },
   session: {
     strategy: "jwt"
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user }: any) {
       if (user) {
         token.id = user.id;
       }
       return token;
     },
-    session({ session, token }) {
+    session({ session, token }: any) {
       if (session.user) {
-        session.user.id = token.id as string;
+        (session.user as any).id = token.id;
       }
       return session;
     }
   }
 };
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+export const { auth, signIn, signOut } = NextAuth(authConfig);
