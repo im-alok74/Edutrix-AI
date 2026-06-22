@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export const authConfig: NextAuthConfig = {
+  secret: process.env.NEXTAUTH_SECRET || "dev-secret-change-in-production",
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({

@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth/config";
 import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 const protectedRoutes = [
   "/dashboard",
@@ -15,19 +15,19 @@ const protectedRoutes = [
 ];
 
 export async function middleware(req: NextRequest) {
-  const session = await auth();
+  const token = await getToken({ req });
   const path = req.nextUrl.pathname;
 
   // Check if the current route is protected
   const isProtected = protectedRoutes.some(route => path.startsWith(route));
 
-  // Redirect to signin if accessing protected route without session
-  if (isProtected && !session) {
+  // Redirect to signin if accessing protected route without token
+  if (isProtected && !token) {
     return NextResponse.redirect(new URL("/auth/signin", req.url));
   }
 
   // Redirect to dashboard if accessing auth pages while signed in
-  if (session && (path === "/auth/signin" || path === "/auth/signup")) {
+  if (token && (path === "/auth/signin" || path === "/auth/signup")) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 

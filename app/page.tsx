@@ -1,13 +1,15 @@
+"use client";
+
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { auth } from "@/lib/auth/config";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export default async function HomePage() {
-  const session = await auth();
+export default function HomePage() {
+  const { data: session } = useSession();
   return (
     <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.16),transparent_32rem),radial-gradient(circle_at_top_right,rgba(45,212,191,0.14),transparent_28rem)]">
       <section className="relative">
