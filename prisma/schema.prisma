@@ -113,9 +113,10 @@ enum AttemptStatus {
 
 model User {
   id                  String              @id @default(cuid())
-  clerkId             String              @unique
   email               String              @unique
   name                String
+  password            String?
+  emailVerified       DateTime?
   imageUrl            String?
   exam                ExamType?
   targetRank          Int?
