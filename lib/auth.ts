@@ -1,24 +1,23 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db";
 
 export async function requireUser() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
 
-  const clerkUser = await currentUser();
-  const email = clerkUser?.emailAddresses[0]?.emailAddress ?? `${userId}@edutrix.local`;
-
-  return prisma.user.upsert({
-    where: { clerkId: userId },
-    update: {
-      email,
-      name: clerkUser?.fullName ?? clerkUser?.firstName ?? "Learner",
-      imageUrl: clerkUser?.imageUrl
-    },
-    create: {
-      clerkId: userId,
-      email,
-      name: clerkUser?.fullName ?? clerkUser?.firstName ?? "Learner"
-    }
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id }
   });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+}
+
+export async function getSession() {
+  return await auth();
 }

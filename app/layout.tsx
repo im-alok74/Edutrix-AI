@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { EduTrixThemeProvider } from "@/components/theme/theme-provider";
 import "./globals.css";
 
@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className="min-h-screen antialiased">
+    <html lang="en">
+      <body className="min-h-screen antialiased">
+        <AuthSessionProvider>
           <EduTrixThemeProvider>{children}</EduTrixThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </AuthSessionProvider>
+      </body>
+    </html>
   );
 }

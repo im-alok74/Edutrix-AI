@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { UserMenu } from "@/components/auth/user-menu";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
@@ -82,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link href="/settings" className="touch-target grid place-items-center rounded-full bg-white/55 text-muted-foreground shadow-sm" aria-label="Open settings">
               <Settings className="h-5 w-5" />
             </Link>
-            <UserButton afterSignOutUrl="/" />
+            <UserMenu />
           </div>
         </div>
       </header>

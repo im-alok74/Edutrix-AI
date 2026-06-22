@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -258,13 +258,16 @@ export function SparkHub() {
                       ["Deep work XP", "+40 per focus session", Zap],
                       ["Pomodoro bonus", "+15 on completion", PlayCircle],
                       ["Revision consistency", "+20 on repeat reviews", Repeat2]
-                    ].map(([title, helper, icon: Icon]) => (
-                      <div key={title as string} className="rounded-[1.25rem] bg-white/75 p-4">
-                        <Icon className="h-5 w-5 text-primary" />
-                        <p className="mt-3 text-sm font-black text-foreground">{title as string}</p>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{helper as string}</p>
-                      </div>
-                    ))}
+                    ].map(([title, helper, IconComponent]) => {
+                      const Icon = IconComponent as React.FC<any>;
+                      return (
+                        <div key={title as string} className="rounded-[1.25rem] bg-white/75 p-4">
+                          <Icon className="h-5 w-5 text-primary" />
+                          <p className="mt-3 text-sm font-black text-foreground">{title as string}</p>
+                          <p className="mt-1 text-sm leading-6 text-muted-foreground">{helper as string}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -398,15 +401,18 @@ export function SparkHub() {
                     ["Study sessions", "+25 to +60 XP", Timer],
                     ["Goal completion", "+50 to +150 XP", Target],
                     ["Streak day", "+10 XP + streak shield chance", Flame]
-                  ].map(([label, helper, icon: Icon]) => (
-                    <div key={label as string} className="flex items-start gap-3 rounded-[1.25rem] bg-white/75 p-4">
-                      <Icon className="mt-0.5 h-5 w-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-black text-foreground">{label as string}</p>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{helper as string}</p>
+                  ].map(([label, helper, IconComponent]) => {
+                    const Icon = IconComponent as React.FC<any>;
+                    return (
+                      <div key={label as string} className="flex items-start gap-3 rounded-[1.25rem] bg-white/75 p-4">
+                        <Icon className="mt-0.5 h-5 w-5 text-primary" />
+                        <div>
+                          <p className="text-sm font-black text-foreground">{label as string}</p>
+                          <p className="mt-1 text-sm leading-6 text-muted-foreground">{helper as string}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <div className="rounded-[1.25rem] bg-primary/10 p-4">
                     <p className="text-sm font-black text-primary">Streak recovery</p>
                     <p className="mt-1 text-sm leading-6 text-foreground/75">One shield can protect a streak on an occasional missed day to keep students engaged without guilt.</p>
@@ -600,70 +606,71 @@ export function SparkHub() {
                     ["Level up", "Full-screen level card", Crown],
                     ["Achievement unlock", "Animated sheet + reward badge", Award],
                     ["Streak milestone", "Glowing streak chip", Flame]
-                  ].map(([label, helper, icon: Icon]) => (
-                    <div key={label as string} className="flex items-start gap-3 rounded-[1.25rem] bg-white/75 p-4">
-                      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                      <div>
-                        <p className="text-sm font-black text-foreground">{label as string}</p>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{helper as string}</p>
+                  ].map(([label, helper, IconComponent]) => {
+                    const Icon = IconComponent as React.FC<any>;
+                    return (
+                      <div key={label as string} className="flex items-start gap-3 rounded-[1.25rem] bg-white/75 p-4">
+                        <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                        <div>
+                          <p className="text-sm font-black text-foreground">{label as string}</p>
+                          <p className="mt-1 text-sm leading-6 text-muted-foreground">{helper as string}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
         </Tabs>
 
-        <AnimatePresence>
-          {selectedAchievement ? (
-            <Sheet open={Boolean(selectedAchievement)} onOpenChange={(open) => !open && setSelectedAchievement(null)}>
-              <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
-                <SheetHeader className="space-y-4">
-                  <div className="grid h-16 w-16 place-items-center rounded-[1.5rem] bg-primary/12 text-primary">
-                    {selectedAchievement.unlocked ? <Trophy className="h-8 w-8" /> : <Lock className="h-8 w-8" />}
-                  </div>
-                  <div>
-                    <SheetTitle className="text-2xl">{selectedAchievement.title}</SheetTitle>
-                    <SheetDescription className="mt-2 text-sm leading-6">
-                      {selectedAchievement.description}
-                    </SheetDescription>
-                  </div>
-                </SheetHeader>
+        {selectedAchievement ? (
+          <Sheet open={Boolean(selectedAchievement)} onOpenChange={(open) => !open && setSelectedAchievement(null)}>
+            <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
+              <SheetHeader className="space-y-4">
+                <div className="grid h-16 w-16 place-items-center rounded-[1.5rem] bg-primary/12 text-primary">
+                  {selectedAchievement.unlocked ? <Trophy className="h-8 w-8" /> : <Lock className="h-8 w-8" />}
+                </div>
+                <div>
+                  <SheetTitle className="text-2xl">{selectedAchievement.title}</SheetTitle>
+                  <SheetDescription className="mt-2 text-sm leading-6">
+                    {selectedAchievement.description}
+                  </SheetDescription>
+                </div>
+              </SheetHeader>
 
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mt-6 space-y-4">
-                  <Card className="border-white/50 bg-white/75 shadow-xl shadow-primary/5 backdrop-blur">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-black text-foreground">Unlock progress</p>
-                          <p className="mt-1 text-sm text-muted-foreground">{selectedAchievement.progress}/{selectedAchievement.target}</p>
-                        </div>
-                        <Badge>{selectedAchievement.xpReward} XP</Badge>
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mt-6 space-y-4">
+                <Card className="border-white/50 bg-white/75 shadow-xl shadow-primary/5 backdrop-blur">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-black text-foreground">Unlock progress</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{selectedAchievement.progress}/{selectedAchievement.target}</p>
                       </div>
-                      <Progress value={Math.min(100, (selectedAchievement.progress / selectedAchievement.target) * 100)} className="mt-4 h-3" />
-                    </CardContent>
-                  </Card>
+                      <Badge>{selectedAchievement.xpReward} XP</Badge>
+                    </div>
+                    <Progress value={Math.min(100, (selectedAchievement.progress / selectedAchievement.target) * 100)} className="mt-4 h-3" />
+                  </CardContent>
+                </Card>
 
-                  <Card className="border-white/50 bg-white/75 shadow-xl shadow-primary/5 backdrop-blur">
-                    <CardHeader>
-                      <CardTitle className="text-xl">Celebrate unlocks</CardTitle>
-                      <CardDescription>Use confetti, motion, and a sound placeholder when this becomes real.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex items-center gap-3">
-                      <PartyPopper className="h-6 w-6 text-primary" />
-                      <p className="text-sm text-muted-foreground">Achievement unlock modal ready for future wiring.</p>
-                    </CardContent>
-                  </Card>
+                <Card className="border-white/50 bg-white/75 shadow-xl shadow-primary/5 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Celebrate unlocks</CardTitle>
+                    <CardDescription>Use confetti, motion, and a sound placeholder when this becomes real.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex items-center gap-3">
+                    <PartyPopper className="h-6 w-6 text-primary" />
+                    <p className="text-sm text-muted-foreground">Achievement unlock modal ready for future wiring.</p>
+                  </CardContent>
+                </Card>
 
-                  <Button className="w-full rounded-full" onClick={() => setSelectedAchievement(null)}>
-                    Close
-                  </Button>
-                </motion.div>
-              </SheetContent>
-            </Sheet>
-          ) : null}
-        </AnimatePresence>
+                <Button className="w-full rounded-full" onClick={() => setSelectedAchievement(null)}>
+                  Close
+                </Button>
+              </motion.div>
+            </SheetContent>
+          </Sheet>
+        ) : null}
       </div>
     </TooltipProvider>
   );
