@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { auth } from "@/lib/auth/config";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth();
   return (
     <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.16),transparent_32rem),radial-gradient(circle_at_top_right,rgba(45,212,191,0.14),transparent_28rem)]">
       <section className="relative">
@@ -24,23 +25,24 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <Button size="lg" className="rounded-full shadow-lg shadow-primary/20">
-                    Start learning <ArrowRight className="h-4 w-4" />
+              {!session ? (
+                <>
+                  <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20">
+                    <Link href="/auth/signin">
+                      Start learning <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </Button>
-                </SignInButton>
-                <Button asChild variant="outline" size="lg" className="rounded-full bg-white/70">
-                  <Link href="/onboarding">Preview onboarding</Link>
-                </Button>
-              </SignedOut>
-              <SignedIn>
+                  <Button asChild variant="outline" size="lg" className="rounded-full bg-white/70">
+                    <Link href="/onboarding">Preview onboarding</Link>
+                  </Button>
+                </>
+              ) : (
                 <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20">
                   <Link href="/dashboard">
                     Open dashboard <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-              </SignedIn>
+              )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
